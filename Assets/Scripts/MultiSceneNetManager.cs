@@ -85,6 +85,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public override void OnStartServer()
         {
             StartCoroutine(ServerLoadSubScenes());
+            HasteIntegration.ConfigureHasteServer();
         }
 
         // We're additively loading scenes, so GetSceneAt(0) will return the main "container" scene,

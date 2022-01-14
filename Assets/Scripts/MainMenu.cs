@@ -24,8 +24,7 @@ public class MainMenu : MonoBehaviour
         // The access token should be stored somewhere.
         // then in this function you should check that storage location to see if the user is already logged in
         // it does have an expiration date embedded in teh access_token. This should be parsed and stored as well
-        // then here have something like
-        // if(!access_token_exists || access_expiration > DateTime.Now()) { var result = await HasteIntegration.Login(); StoreStuff(result.access_token);}
+        // the expiratin date must be checked to ensure their token is still valid
         var expirationDate = !PlayerPrefs.HasKey("HasteAccessToken") ? 
             DateTime.MinValue : 
             (!PlayerPrefs.HasKey("HasteExpiration") ? 
@@ -42,6 +41,9 @@ public class MainMenu : MonoBehaviour
             PlayerPrefs.SetString("HasteExpiration", result.expiration.ToString("yyyyMMddHHmmss"));
 
         }
+
+        var accessToken = PlayerPrefs.GetString("HasteAccessToken");
+        HasteIntegration.Jwt = accessToken;
         SceneManager.LoadScene(startScene);
     }
 
