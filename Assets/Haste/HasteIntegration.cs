@@ -67,7 +67,7 @@ public class HasteIntegration
     private static string _apiUrl = "https://api.hastearcade.com";
     private static DateTime tokenExpiration = DateTime.MinValue;
     private static HasteServerAuthResult configuration;
-    private static HasteLeaderboardDetail[] leaderboards;
+    public static HasteLeaderboardDetail[] Leaderboards { get; set; }
 
     public static async UniTask<HasteLoginResult> Login()
     {
@@ -143,7 +143,7 @@ public class HasteIntegration
         // parse the results and then open the browser for authentication
         var hasteGetLeaderboardResults = JsonConvert.DeserializeObject<HasteAllLeaderboards>(www.downloadHandler.text);
         Debug.Log("Finished getting leaderboards");
-        leaderboards = hasteGetLeaderboardResults.leaderboards;
+        Leaderboards = hasteGetLeaderboardResults.leaderboards;
         Debug.Log(hasteGetLeaderboardResults.leaderboards.Length);
         Debug.Log(hasteGetLeaderboardResults.leaderboards[0].name);
     }
