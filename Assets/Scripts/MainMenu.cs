@@ -42,8 +42,6 @@ public class MainMenu : MonoBehaviour
 
         }
 
-        var accessToken = PlayerPrefs.GetString("HasteAccessToken");
-        HasteIntegration.Jwt = accessToken;
         SceneManager.LoadScene(startScene);
     }
 
