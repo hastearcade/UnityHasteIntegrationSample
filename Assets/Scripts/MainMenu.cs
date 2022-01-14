@@ -8,18 +8,8 @@ using System.Globalization;
 public class MainMenu : MonoBehaviour
 {
     public string startScene;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    public async void Login()
+    public void Login()
     {
         // The access token should be stored somewhere.
         // then in this function you should check that storage location to see if the user is already logged in
@@ -33,16 +23,38 @@ public class MainMenu : MonoBehaviour
 
         Debug.Log($"The expriation date is " + expirationDate.ToLongDateString());
 
-
         if (expirationDate < DateTime.Now)
         {
-            var result = await HasteIntegration.Login();
-            PlayerPrefs.SetString("HasteAccessToken", result.access_token);
-            PlayerPrefs.SetString("HasteExpiration", result.expiration.ToString("yyyyMMddHHmmss"));
-
+            Debug.Log($"about to start coroutine");
+            StartCoroutine(HasteIntegration.Instance.Client.Login(this.CompletedLoginInit));
+        }
+        else
+        {
+            SceneManager.LoadScene(startScene);
         }
 
-        SceneManager.LoadScene(startScene);
+    }
+
+    private void CompletedLoginInit(HasteCliResult cliResult)
+    {
+        StartCoroutine(HasteIntegration.Instance.Client.WaitForLogin(cliResult, this.CompletedLogin));
+    }
+    private void CompletedLogin(HasteLoginResult loginResult)
+    {
+        Debug.Log("Final login completed!");
+        PlayerPrefs.SetString("HasteAccessToken", loginResult.access_token);
+        PlayerPrefs.SetString("HasteExpiration", loginResult.expiration.ToString("yyyyMMddHHmmss"));
+        
+        if(String.IsNullOrEmpty(loginResult.access_token))
+        {
+            Debug.Log("An error occurred during login");
+            // TODO Need to display an error message to the user here
+        }
+        else
+        {
+            SceneManager.LoadScene(startScene);
+        }
+
     }
 
     public void QuitGame()
