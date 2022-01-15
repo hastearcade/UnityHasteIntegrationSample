@@ -3,21 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class HasteLoginResult
-{
-    public string access_token;
-    public DateTime expiration;
-}
-
-public class HasteCliResult
-{
-    public string browserUrl;
-    public string requestorId;
-    public string cliUrl;
-    public string token;
-}
-
 public class HasteClientIntegration : HasteRequestBase
 {
     private string authServerUrl = "https://authservice.hastearcade.com"; // These should be production

@@ -1,27 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-
-public class HasteServerAuthResult
-{
-    public string arcadeId;
-    public string gameId;
-    public string access_token;
-    public int expires_in;
-}
-
-public class HasteAllLeaderboards
-{
-    public HasteLeaderboardDetail[] leaderboards;
-}
-public class HasteLeaderboardDetail
-{
-    public string id;
-    public string name;
-    public int cost;
-}
-
 
 public class HasteServerIntegration : HasteRequestBase
 {

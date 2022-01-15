@@ -6,16 +6,16 @@ using JWT;
 using Newtonsoft.Json;
 using UnityEngine;
 
-
+/* The JWT code is a customization of https://github.com/jwt-dotnet/jwt */
 namespace JWT
 {
-	public class SignatureVerificationException : Exception
-	{
-		public SignatureVerificationException(string message)
-			: base(message)
-		{
-		}
-	}
+    public class SignatureVerificationException : Exception
+    {
+        public SignatureVerificationException(string message)
+            : base(message)
+        {
+        }
+    }
 }
 namespace JWT
 {
@@ -358,7 +358,7 @@ public class JwtToken
 }
 
 public class JWTService
-  {
+{
     public DateTime GetExpiryTimestamp(string accessToken)
     {
         var decoded = JsonWebToken.Decode(accessToken, "", false);
@@ -367,4 +367,4 @@ public class JWTService
         var results = JsonConvert.DeserializeObject<JwtToken>(decoded);
         return DateTimeOffset.FromUnixTimeSeconds(results.exp).LocalDateTime;
     }
-  }
+}
