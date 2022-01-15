@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
 
 public class HasteLoginResult
@@ -43,7 +42,7 @@ public class HasteClientIntegration : HasteRequestBase
 
     private void ParseCliRequest(HasteCliResult result)
     {
-        if(result != null && !String.IsNullOrEmpty(result.token))
+        if (result != null && !String.IsNullOrEmpty(result.token))
         {
             this._cliCallback(result);
             Debug.Log("got back cli result");
@@ -60,7 +59,7 @@ public class HasteClientIntegration : HasteRequestBase
         Application.OpenURL(browserUrl);
 
         // loop until the user logs in
-        while(!completed)
+        while (!completed)
         {
             Debug.Log("looping");
             yield return new WaitForSeconds(3f);
@@ -69,7 +68,7 @@ public class HasteClientIntegration : HasteRequestBase
     }
     private void ParseLoginCheck(HasteLoginResult loginResult)
     {
-        if(loginResult != null)
+        if (loginResult != null)
         {
             Debug.Log("in parse log checkin");
             var jwtService = new JWTService();

@@ -85,7 +85,24 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public override void OnStartServer()
         {
             StartCoroutine(ServerLoadSubScenes());
-//            HasteIntegration.ConfigureHasteServer();
+            StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(GetHasteTokenCompleted));
+        }
+
+        private void GetHasteTokenCompleted(HasteServerAuthResult result)
+        {
+            if (result != null)
+            {
+                StartCoroutine(HasteIntegration.Instance.Server.ConfigureHasteServer(result, ConfigureHasteServerCompleted));
+            }
+        }
+
+        private void ConfigureHasteServerCompleted(HasteAllLeaderboards leaderboards)
+        {
+            if (leaderboards != null)
+            {
+                Debug.Log(leaderboards.leaderboards.Length);
+                HasteIntegration.Instance.Server.Leaderboards = leaderboards.leaderboards;
+            }
         }
 
         // We're additively loading scenes, so GetSceneAt(0) will return the main "container" scene,

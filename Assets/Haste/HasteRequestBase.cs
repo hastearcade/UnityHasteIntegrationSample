@@ -13,7 +13,7 @@ public class HasteRequestBase
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
-            if(!String.IsNullOrEmpty(token))
+            if (!String.IsNullOrEmpty(token))
             {
                 webRequest.SetRequestHeader("Authorization", $"Bearer {token}");
             }
@@ -23,7 +23,7 @@ public class HasteRequestBase
 
             string[] pages = uri.Split('/');
             int page = pages.Length - 1;
-            
+
 
             switch (webRequest.result)
             {
@@ -51,7 +51,7 @@ public class HasteRequestBase
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, data))
         {
-            if(!String.IsNullOrEmpty(token))
+            if (!String.IsNullOrEmpty(token))
             {
                 webRequest.SetRequestHeader("Authorization", $"Bearer {token}");
             }

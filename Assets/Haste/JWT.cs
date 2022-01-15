@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using JWT;
+using Newtonsoft.Json;
 using UnityEngine;
 
 
@@ -350,3 +352,19 @@ namespace JWT
         }
     }
 }
+public class JwtToken
+{
+    public long exp { get; set; }
+}
+
+public class JWTService
+  {
+    public DateTime GetExpiryTimestamp(string accessToken)
+    {
+        var decoded = JsonWebToken.Decode(accessToken, "", false);
+        Debug.Log("The decoded value is " + decoded);
+
+        var results = JsonConvert.DeserializeObject<JwtToken>(decoded);
+        return DateTimeOffset.FromUnixTimeSeconds(results.exp).LocalDateTime;
+    }
+  }
