@@ -15,17 +15,14 @@ public class MainMenu : MonoBehaviour
         // then in this function you should check that storage location to see if the user is already logged in
         // it does have an expiration date embedded in teh access_token. This should be parsed and stored as well
         // the expiratin date must be checked to ensure their token is still valid
-        var expirationDate = !PlayerPrefs.HasKey("HasteAccessToken") ? 
-            DateTime.MinValue : 
-            (!PlayerPrefs.HasKey("HasteExpiration") ? 
-                DateTime.MinValue : 
+        var expirationDate = !PlayerPrefs.HasKey("HasteAccessToken") ?
+            DateTime.MinValue :
+            (!PlayerPrefs.HasKey("HasteExpiration") ?
+                DateTime.MinValue :
                 DateTime.ParseExact(PlayerPrefs.GetString("HasteExpiration"), "yyyyMMddHHmmss", new CultureInfo("en-US")));
-
-        Debug.Log($"The expriation date is " + expirationDate.ToLongDateString());
 
         if (expirationDate < DateTime.Now)
         {
-            Debug.Log($"about to start coroutine");
             StartCoroutine(HasteIntegration.Instance.Client.Login(this.CompletedLoginInit));
         }
         else
@@ -41,11 +38,10 @@ public class MainMenu : MonoBehaviour
     }
     private void CompletedLogin(HasteLoginResult loginResult)
     {
-        Debug.Log("Final login completed!");
         PlayerPrefs.SetString("HasteAccessToken", loginResult.access_token);
         PlayerPrefs.SetString("HasteExpiration", loginResult.expiration.ToString("yyyyMMddHHmmss"));
-        
-        if(String.IsNullOrEmpty(loginResult.access_token))
+
+        if (String.IsNullOrEmpty(loginResult.access_token))
         {
             Debug.Log("An error occurred during login");
             // TODO Need to display an error message to the user here

@@ -17,8 +17,6 @@ public class HasteClientIntegration : HasteRequestBase
         this._cliCallback = callback;
         var data = new Dictionary<string, string>();
 
-        Debug.Log("Starting haste auth flow");
-
         // make the initial request to the cli service to initiate a login
         data.Add("description", $"{SystemInfo.operatingSystem} - {SystemInfo.deviceName}");
         yield return this.PostRequest<HasteCliResult>($"{authServerUrl}/cli", data, this.ParseCliRequest);
@@ -30,14 +28,12 @@ public class HasteClientIntegration : HasteRequestBase
         if (result != null && !String.IsNullOrEmpty(result.token))
         {
             this._cliCallback(result);
-            Debug.Log("got back cli result");
         }
     }
 
     public IEnumerator WaitForLogin(HasteCliResult cliResult, System.Action<HasteLoginResult> finalCallback)
     {
         this._finalCallback = finalCallback;
-        Debug.Log("Starting to do check?");
         var completed = false;
         var browserUrl = $"{authClientUrl}{cliResult.browserUrl}";
         var cliUrl = $"{authServerUrl}{cliResult.cliUrl}/{cliResult.requestorId}";
@@ -46,7 +42,6 @@ public class HasteClientIntegration : HasteRequestBase
         // loop until the user logs in
         while (!completed)
         {
-            Debug.Log("looping");
             yield return new WaitForSeconds(3f);
             yield return this.GetRequest<HasteLoginResult>($"{cliUrl}", this.ParseLoginCheck, cliResult.token);
         }
@@ -55,13 +50,10 @@ public class HasteClientIntegration : HasteRequestBase
     {
         if (loginResult != null)
         {
-            Debug.Log("in parse log checkin");
             var jwtService = new JWTService();
 
             var expiration = jwtService.GetExpiryTimestamp(loginResult.access_token);
             loginResult.expiration = expiration;
-            Debug.Log("Expiration is ");
-            Debug.Log(expiration);
             this._finalCallback(loginResult);
         }
     }

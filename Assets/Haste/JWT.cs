@@ -362,8 +362,6 @@ public class JWTService
     public DateTime GetExpiryTimestamp(string accessToken)
     {
         var decoded = JsonWebToken.Decode(accessToken, "", false);
-        Debug.Log("The decoded value is " + decoded);
-
         var results = JsonConvert.DeserializeObject<JwtToken>(decoded);
         return DateTimeOffset.FromUnixTimeSeconds(results.exp).LocalDateTime;
     }
