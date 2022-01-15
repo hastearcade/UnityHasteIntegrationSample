@@ -7,6 +7,9 @@ public class HasteServerIntegration : HasteRequestBase
     private string _hasteGameServerClientId = "cKLXxdH7l0DCoZmQMOrbc1h40ao7fE5A";
     private string _hasteGameServerSecret = "5PjsTcYvgAEmB5ju7-PBDgzQWe7vQzrF84vSoat9gr8QBEwaAzf-lnXBywIYizKC";
     private string _environment = "nonproduction"; // valid values are nonproduction or production
+    // The environment should be really be an environment variable. For demo purposes it will always be nonproduction
+    // but in a real implementation this should be an ENV VAR.
+
     private string _apiUrl = "https://api.hastearcade.com";
     private DateTime _tokenExpiration = DateTime.MinValue;
     private HasteServerAuthResult _configuration;

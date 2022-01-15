@@ -100,7 +100,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             if (leaderboards != null)
             {
-                Debug.Log(leaderboards.leaderboards.Length);
                 HasteIntegration.Instance.Server.Leaderboards = leaderboards.leaderboards;
             }
         }
