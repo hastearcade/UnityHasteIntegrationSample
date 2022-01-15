@@ -21,11 +21,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             GetComponent<NetworkTransform>().clientAuthority = true;
         }
 
-        public override void OnStartLocalPlayer()
-        {
-            characterController.enabled = true;
-        }
-
         [Header("Movement Settings")]
         public float moveSpeed = 8f;
         public float turnSensitivity = 5f;

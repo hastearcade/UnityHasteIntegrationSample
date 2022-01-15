@@ -67,8 +67,7 @@ public class MainMenu : MonoBehaviour
     private void StartClient()
     {
         SceneManager.LoadScene("LeaderboardSelection");
-        // SceneManager.UnloadSceneAsync("TitleScreen");
-        // NetworkManager.singleton.StartClient();
+        NetworkManager.singleton.StartClient();
     }
 
     private void CompletedLoginInit(HasteCliResult cliResult)
