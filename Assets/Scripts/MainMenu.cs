@@ -4,10 +4,42 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Globalization;
+using Mirror;
+using Mirror.Examples.MultipleAdditiveScenes;
+
+public enum Role
+{
+    Server,
+    Client
+}
 
 public class MainMenu : MonoBehaviour
 {
-    public string startScene;
+    public Role Role;
+
+    void Start()
+    {
+        var clientUI = GameObject.Find("ClientUI");
+        var serverUI = GameObject.Find("ServerUI");
+        if (Role == Role.Server)
+        {
+            Debug.Log(clientUI);
+            if (clientUI != null)
+            {
+                clientUI.SetActive(false);
+                serverUI.SetActive(true);
+            }
+            NetworkManager.singleton.StartServer();
+        }
+        else
+        {
+            if (serverUI != null)
+            {
+                serverUI.SetActive(false);
+                clientUI.SetActive(true);
+            }
+        }
+    }
 
     public void Login()
     {
@@ -27,9 +59,16 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene(startScene);
+            StartClient();
         }
 
+    }
+
+    private void StartClient()
+    {
+        SceneManager.LoadScene("LeaderboardSelection");
+        // SceneManager.UnloadSceneAsync("TitleScreen");
+        // NetworkManager.singleton.StartClient();
     }
 
     private void CompletedLoginInit(HasteCliResult cliResult)
@@ -48,7 +87,7 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene(startScene);
+            StartClient();
         }
 
     }
