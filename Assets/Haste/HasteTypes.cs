@@ -30,6 +30,15 @@ public class HasteServerPlayResult : HasteError
     public string id;
 }
 
+public class HasteServerScoreResult : HasteError
+{
+    public string id;
+    public bool isWinner;
+
+    public int score;
+
+    public int leaderRank;
+}
 public class HasteAllLeaderboards
 {
     public HasteLeaderboardDetail[] leaderboards;

@@ -9,8 +9,6 @@ using UnityEngine.SceneManagement;
 public class Leaderboards : NetworkBehaviour
 {
     private readonly SyncList<HasteLeaderboardDetail> hasteLeaderboards = new SyncList<HasteLeaderboardDetail>();
-    private string PlayId { get; set; }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +45,7 @@ public class Leaderboards : NetworkBehaviour
     [Command]
     void CmdSelectPayment(string JWT, string leaderboardId)
     {
+        PlayerPrefs.SetString("HasteLeaderboardId", leaderboardId);
         StartCoroutine(HasteIntegration.Instance.Server.Play(JWT, leaderboardId, PlayResult));
     }
 
@@ -80,8 +79,7 @@ public class Leaderboards : NetworkBehaviour
             }
             else
             {
-                // change scenes
-                PlayId = playResult.id;
+                PlayerPrefs.SetString("HastePlayId", playResult.id);
                 StartCoroutine(((HasteMirrorNetManager)NetworkManager.singleton).StartGameInstanceForPlayer(GetComponent<NetworkIdentity>().connectionToClient));
                 RpcStartGame();
             }

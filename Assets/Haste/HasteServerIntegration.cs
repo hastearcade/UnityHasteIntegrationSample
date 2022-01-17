@@ -54,4 +54,15 @@ public class HasteServerIntegration : HasteRequestBase
         data.Add("leaderboardId", leaderboardId);
         yield return this.PostRequest<HasteServerPlayResult>($"{_apiUrl}{path}", data, callback, _configuration.access_token);
     }
+
+    public IEnumerator Score(string score, string playId, string leaderboardId, System.Action<HasteServerScoreResult> callback)
+    {
+        // first you need to get a token 
+        var path = $"/arcades/{_configuration.arcadeId}/games/{_configuration.gameId}/score";
+        var data = new Dictionary<string, string>();
+        data.Add("playId", playId);
+        data.Add("leaderboardId", leaderboardId);
+        data.Add("score", score);
+        yield return this.PostRequest<HasteServerScoreResult>($"{_apiUrl}{path}", data, callback, _configuration.access_token);
+    }
 }
