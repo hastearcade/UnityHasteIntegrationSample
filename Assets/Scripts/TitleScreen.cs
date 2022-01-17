@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Globalization;
 using Mirror;
-using Mirror.Examples.MultipleAdditiveScenes;
 
 public enum Role
 {
@@ -13,7 +9,7 @@ public enum Role
     Client
 }
 
-public class MainMenu : MonoBehaviour
+public class TitleScreen : MonoBehaviour
 {
     public Role Role;
 
@@ -66,8 +62,11 @@ public class MainMenu : MonoBehaviour
 
     private void StartClient()
     {
-        SceneManager.LoadScene("LeaderboardSelection");
         NetworkManager.singleton.StartClient();
+        var titlePanel = GameObject.Find("TitleScreen");
+        var leaderboardPanel = GameObject.Find("LeaderboardSelection");
+        titlePanel.SetActive(false);
+        leaderboardPanel.SetActive(true);
     }
 
     private void CompletedLoginInit(HasteCliResult cliResult)
