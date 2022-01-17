@@ -13,89 +13,48 @@ public class HasteMirrorNetManager : NetworkManager
     [Tooltip("Reward Prefab for the Spawner")]
     public GameObject rewardPrefab;
 
-
-    [Header("Spawner Setup")]
     [Tooltip("Leaderboard Prefab")]
     public GameObject leaderboardPrefab;
-
-    [Header("MultiScene Setup")]
-    public int instances = 3;
-
+    [Header("Game Setup")]
     [Scene]
     public string gameScene;
 
-    [Scene]
-    public string titleScreen;
+    readonly Dictionary<string, Scene> subScenes = new Dictionary<string, Scene>();
 
-    // This is set true after server loads all subscene instances
-    bool subscenesLoaded;
+    readonly Dictionary<string, GameObject> leaderboards = new Dictionary<string, GameObject>();
 
-    // subscenes are added to this list as they're loaded
-    readonly List<Scene> subScenes = new List<Scene>();
-
-    // Sequential index used in round-robin deployment of players into instances and score positioning
     int clientIndex;
 
-    /// <summary>
-    /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
-    /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
-    /// </summary>
-    /// <param name="conn">Connection from client.</param>
-    public override void OnServerAddPlayer(NetworkConnection conn)
+    public IEnumerator StartGameInstanceForPlayer(NetworkConnection conn)
     {
-        base.OnServerAddPlayer(conn);
-        Debug.Log("Adding player");
-        // StartCoroutine(OnServerAddPlayerDelayed(conn));
-    }
+        yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
 
-    // This delay is mostly for the host player that loads too fast for the
-    // server to have subscenes async loaded from OnStartServer ahead of it.
-    void OnServerAddPlayerDelayed(NetworkConnection conn)
-    {
-        // base.OnServerAddPlayer(conn);
-        //yield return LoadLeaderboardScene(conn.identity.gameObject);
-        // Send Scene message to client to additively load the game scene
-        //conn.Send(new SceneMessage { sceneName = leaderboardScene, sceneOperation = SceneOperation.LoadAdditive });
-        //conn.Send(new SceneMessage { sceneName = titleScreen, sceneOperation = SceneOperation.UnloadAdditive });
+        clientIndex++;
+        Scene newScene = SceneManager.GetSceneAt(clientIndex);
+        subScenes.Add(clientIndex.ToString(), newScene);
+        Spawner.InitialSpawn(newScene);
+
+        conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
+
         // Wait for end of frame before adding the player to ensure Scene Message goes first
-        //yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
 
-        /*
+        PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
+        playerScore.playerNumber = clientIndex;
+        playerScore.scoreIndex = clientIndex / subScenes.Count;
+        playerScore.matchIndex = clientIndex % subScenes.Count;
 
-        // wait for server to async load all subscenes for game instances
-        while (!subscenesLoaded)
-            yield return null;
-
-
-                    PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
-                    playerScore.playerNumber = clientIndex;
-                    playerScore.scoreIndex = clientIndex / subScenes.Count;
-                    playerScore.matchIndex = clientIndex % subScenes.Count;
-
-                    // Do this only on server, not on clients
-                    // This is what allows the NetworkSceneChecker on player and scene objects
-                    // to isolate matches per scene instance on server.
-                    if (subScenes.Count > 0)
-                        SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);
-
-        */
+        SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(clientIndex.ToString())]);
     }
 
-    /// <summary>
-    /// This is invoked when a server is started - including when a host is started.
-    /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
-    /// </summary>
     public override void OnStartServer()
     {
-        Debug.Log("Server started");
         StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(GetHasteTokenCompleted));
     }
 
     public override void OnServerConnect(NetworkConnection conn)
     {
         base.OnServerConnect(conn);
-        Debug.Log("Connected a client");
-        //conn.Send(new SceneMessage { sceneName = titleScreen, sceneOperation = SceneOperation.UnloadAdditive });
         SpawnLeaderboard(conn);
     }
 
@@ -106,17 +65,9 @@ public class HasteMirrorNetManager : NetworkManager
         Vector3 spawnPosition = new Vector3(0, 0, 0);
         GameObject leaderboard = Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
         leaderboard.name = "Leaderboards";
+        //leaderboards.Add(conn.connectionId.ToString(), leaderboard);
         NetworkServer.Spawn(leaderboard, conn);
     }
-    /*    private IEnumerator LoadLeaderboardScene(GameObject playerGameObject)
-        {
-            yield return SceneManager.LoadSceneAsync(leaderboardScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-            clientIndex++;
-            Scene newScene = SceneManager.GetSceneAt(clientIndex);
-            subScenes.Add(newScene);
-            SceneManager.MoveGameObjectToScene(playerGameObject, subScenes[clientIndex]);
-        }*/
-
     private void GetHasteTokenCompleted(HasteServerAuthResult result)
     {
         if (result != null)

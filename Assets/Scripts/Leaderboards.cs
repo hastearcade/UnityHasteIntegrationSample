@@ -4,10 +4,12 @@ using Mirror;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Leaderboards : NetworkBehaviour
 {
     private readonly SyncList<HasteLeaderboardDetail> hasteLeaderboards = new SyncList<HasteLeaderboardDetail>();
+    private string PlayId { get; set; }
 
     // Start is called before the first frame update
     void Start()
@@ -59,6 +61,15 @@ public class Leaderboards : NetworkBehaviour
         Debug.Log(errorMessage);
     }
 
+    [TargetRpc]
+    void RpcStartGame()
+    {
+        var uiComponent = GameObject.Find("UI");
+        var uiCamera = GameObject.Find("MenuCamera");
+        uiComponent.SetActive(false);
+        uiCamera.SetActive(false);
+    }
+
     void PlayResult(HasteServerPlayResult playResult)
     {
         if (playResult != null)
@@ -70,7 +81,9 @@ public class Leaderboards : NetworkBehaviour
             else
             {
                 // change scenes
-                Debug.Log(playResult.id);
+                PlayId = playResult.id;
+                StartCoroutine(((HasteMirrorNetManager)NetworkManager.singleton).StartGameInstanceForPlayer(GetComponent<NetworkIdentity>().connectionToClient));
+                RpcStartGame();
             }
         }
     }

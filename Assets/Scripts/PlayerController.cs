@@ -66,7 +66,10 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 jumpSpeed = 0;
             }
         }
-
+        public override void OnStartLocalPlayer()
+        {
+            characterController.enabled = true;
+        }
         void FixedUpdate()
         {
             if (!isLocalPlayer || characterController == null || !characterController.enabled)

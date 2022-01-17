@@ -21,14 +21,11 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         void OnGUI()
         {
-            if (SceneManager.GetActiveScene().name == "Main")
-            {
-                if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)
-                    clientMatchIndex = NetworkClient.connection.identity.GetComponent<PlayerScore>().matchIndex;
+            if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)
+                clientMatchIndex = NetworkClient.connection.identity.GetComponent<PlayerScore>().matchIndex;
 
-                if (isLocalPlayer || matchIndex == clientMatchIndex)
-                    GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
-            }
+            if (isLocalPlayer || matchIndex == clientMatchIndex)
+                GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
         }
     }
 }
