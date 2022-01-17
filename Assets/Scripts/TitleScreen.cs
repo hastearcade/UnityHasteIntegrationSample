@@ -19,7 +19,6 @@ public class TitleScreen : MonoBehaviour
         var serverUI = GameObject.Find("ServerUI");
         if (Role == Role.Server)
         {
-            Debug.Log(clientUI);
             if (clientUI != null)
             {
                 clientUI.SetActive(false);

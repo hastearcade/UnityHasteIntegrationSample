@@ -96,19 +96,17 @@ public class HasteMirrorNetManager : NetworkManager
         base.OnServerConnect(conn);
         Debug.Log("Connected a client");
         //conn.Send(new SceneMessage { sceneName = titleScreen, sceneOperation = SceneOperation.UnloadAdditive });
-        SpawnLeaderboard();
+        SpawnLeaderboard(conn);
     }
 
-    void SpawnLeaderboard()
+    void SpawnLeaderboard(NetworkConnection conn)
     {
         if (!NetworkServer.active) return;
-
-        Debug.Log("Spawning leaderobard");
 
         Vector3 spawnPosition = new Vector3(0, 0, 0);
         GameObject leaderboard = Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
         leaderboard.name = "Leaderboards";
-        NetworkServer.Spawn(leaderboard);
+        NetworkServer.Spawn(leaderboard, conn);
     }
     /*    private IEnumerator LoadLeaderboardScene(GameObject playerGameObject)
         {

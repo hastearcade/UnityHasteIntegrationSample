@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class HasteServerIntegration : HasteRequestBase
 {
@@ -39,5 +40,18 @@ public class HasteServerIntegration : HasteRequestBase
         data.Add("environment", _environment);
 
         yield return this.PostRequest<HasteServerAuthResult>($"{_apiUrl}{path}", data, callback);
+    }
+
+    public IEnumerator Play(string jwt, string leaderboardId, System.Action<HasteServerPlayResult> callback)
+    {
+        var jwtService = new JWTService();
+        var playerId = jwtService.GetPlayerId(jwt);
+
+        // first you need to get a token 
+        var path = $"/arcades/{_configuration.arcadeId}/games/{_configuration.gameId}/play";
+        var data = new Dictionary<string, string>();
+        data.Add("playerId", playerId);
+        data.Add("leaderboardId", leaderboardId);
+        yield return this.PostRequest<HasteServerPlayResult>($"{_apiUrl}{path}", data, callback, _configuration.access_token);
     }
 }

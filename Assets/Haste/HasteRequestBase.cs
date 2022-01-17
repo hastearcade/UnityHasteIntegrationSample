@@ -52,6 +52,9 @@ public class HasteRequestBase
                 break;
             case UnityWebRequest.Result.ProtocolError:
                 Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+
+                var errorResult = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
+                callback(errorResult);
                 break;
             case UnityWebRequest.Result.Success:
                 Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);

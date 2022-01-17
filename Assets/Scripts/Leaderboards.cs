@@ -35,15 +35,44 @@ public class Leaderboards : NetworkBehaviour
                 prefab.name = leaderboard.id;
                 button.name = leaderboard.id;
 
-                button.onClick.AddListener(delegate { SelectPayment(button.name); });
+                button.onClick.AddListener(delegate { CmdSelectPayment(PlayerPrefs.GetString("HasteAccessToken"), button.name); });
                 startY -= 150;
             }
+
         }
     }
 
-    void SelectPayment(string paymentTierId)
+    [Command]
+    void CmdSelectPayment(string JWT, string leaderboardId)
     {
-        Debug.Log("You clicked " + paymentTierId);
+        StartCoroutine(HasteIntegration.Instance.Server.Play(JWT, leaderboardId, PlayResult));
+    }
+
+    [TargetRpc]
+    void RpcSetError(string errorMessage)
+    {
+        var leaderboardSelection = GameObject.Find("LeaderboardSelection");
+        var prefab = Instantiate(Resources.Load("ErrorLabel"), new Vector3(900, 50, 0), Quaternion.identity, leaderboardSelection.transform) as GameObject;
+        var label = prefab.GetComponentsInChildren<TMPro.TextMeshProUGUI>().FirstOrDefault();
+        label.name = "ErrorLabel";
+        label.text = errorMessage;
+        Debug.Log(errorMessage);
+    }
+
+    void PlayResult(HasteServerPlayResult playResult)
+    {
+        if (playResult != null)
+        {
+            if (!string.IsNullOrEmpty(playResult.message))
+            {
+                RpcSetError(playResult.message);
+            }
+            else
+            {
+                // change scenes
+                Debug.Log(playResult.id);
+            }
+        }
     }
     // Update is called once per frame
     void Update()

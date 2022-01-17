@@ -355,6 +355,12 @@ namespace JWT
 public class JwtToken
 {
     public long exp { get; set; }
+
+    [JsonProperty(PropertyName = "https://hastearcade.com/playerId")]
+    public string playerId { get; set; }
+
+    [JsonProperty(PropertyName = "https://hastearcade.com/displayName")]
+    public string displayName { get; set; }
 }
 
 public class JWTService
@@ -364,5 +370,12 @@ public class JWTService
         var decoded = JsonWebToken.Decode(accessToken, "", false);
         var results = JsonConvert.DeserializeObject<JwtToken>(decoded);
         return DateTimeOffset.FromUnixTimeSeconds(results.exp).LocalDateTime;
+    }
+
+    public string GetPlayerId(string accessToken)
+    {
+        var decoded = JsonWebToken.Decode(accessToken, "", false);
+        var results = JsonConvert.DeserializeObject<JwtToken>(decoded);
+        return results.playerId;
     }
 }
