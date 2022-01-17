@@ -13,14 +13,16 @@ public class HasteMirrorNetManager : NetworkManager
     [Tooltip("Reward Prefab for the Spawner")]
     public GameObject rewardPrefab;
 
+
+    [Header("Spawner Setup")]
+    [Tooltip("Leaderboard Prefab")]
+    public GameObject leaderboardPrefab;
+
     [Header("MultiScene Setup")]
     public int instances = 3;
 
     [Scene]
     public string gameScene;
-
-    [Scene]
-    public string leaderboardScene;
 
     [Scene]
     public string titleScreen;
@@ -89,14 +91,33 @@ public class HasteMirrorNetManager : NetworkManager
         StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(GetHasteTokenCompleted));
     }
 
-    private IEnumerator LoadLeaderboardScene(GameObject playerGameObject)
+    public override void OnServerConnect(NetworkConnection conn)
     {
-        yield return SceneManager.LoadSceneAsync(leaderboardScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-        clientIndex++;
-        Scene newScene = SceneManager.GetSceneAt(clientIndex);
-        subScenes.Add(newScene);
-        SceneManager.MoveGameObjectToScene(playerGameObject, subScenes[clientIndex]);
+        base.OnServerConnect(conn);
+        Debug.Log("Connected a client");
+        //conn.Send(new SceneMessage { sceneName = titleScreen, sceneOperation = SceneOperation.UnloadAdditive });
+        SpawnLeaderboard();
     }
+
+    void SpawnLeaderboard()
+    {
+        if (!NetworkServer.active) return;
+
+        Debug.Log("Spawning leaderobard");
+
+        Vector3 spawnPosition = new Vector3(0, 0, 0);
+        GameObject leaderboard = Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
+        leaderboard.name = "Leaderboards";
+        NetworkServer.Spawn(leaderboard);
+    }
+    /*    private IEnumerator LoadLeaderboardScene(GameObject playerGameObject)
+        {
+            yield return SceneManager.LoadSceneAsync(leaderboardScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
+            clientIndex++;
+            Scene newScene = SceneManager.GetSceneAt(clientIndex);
+            subScenes.Add(newScene);
+            SceneManager.MoveGameObjectToScene(playerGameObject, subScenes[clientIndex]);
+        }*/
 
     private void GetHasteTokenCompleted(HasteServerAuthResult result)
     {
