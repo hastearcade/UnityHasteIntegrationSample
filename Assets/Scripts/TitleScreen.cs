@@ -15,24 +15,20 @@ public class TitleScreen : MonoBehaviour
 
     void Start()
     {
+        // Based on whether or not the application is the client or server
+        // show the correct UI elements. Server has no user interaction capabilities
         var clientUI = GameObject.Find("ClientUI");
         var serverUI = GameObject.Find("ServerUI");
         if (Role == Role.Server)
         {
-            if (clientUI != null)
-            {
-                clientUI.SetActive(false);
-                serverUI.SetActive(true);
-            }
+            clientUI.SetActive(false);
+            serverUI.SetActive(true);
             NetworkManager.singleton.StartServer();
         }
         else
         {
-            if (serverUI != null)
-            {
-                serverUI.SetActive(false);
-                clientUI.SetActive(true);
-            }
+            serverUI.SetActive(false);
+            clientUI.SetActive(true);
         }
     }
 
@@ -50,10 +46,13 @@ public class TitleScreen : MonoBehaviour
 
         if (expirationDate < DateTime.Now)
         {
+            // Starts the login flow, which will open the browser. The login function expects a callback
+            // The callback will ultimately have an error message or the login details.
             StartCoroutine(HasteIntegration.Instance.Client.Login(this.CompletedLoginInit));
         }
         else
         {
+            // The user is already logged in
             StartClient();
         }
 
@@ -61,15 +60,24 @@ public class TitleScreen : MonoBehaviour
 
     private void StartClient()
     {
+        // Active the network client, which will create a player on the server.
+        // The player is required to perform any kind of commands or RPCS
+        // which are done in the Leaderboard selection
         NetworkManager.singleton.StartClient();
+
+        // Activate the appropriate UI (leaderboard selection)
         var titlePanel = GameObject.Find("TitleScreen");
         var leaderboardPanel = GameObject.Find("LeaderboardSelection");
+        var finalScreen = GameObject.Find("FinalScoreScreen");
+
         titlePanel.SetActive(false);
+        finalScreen.SetActive(false);
         leaderboardPanel.SetActive(true);
     }
 
     private void CompletedLoginInit(HasteCliResult cliResult)
     {
+        // Once the /cli endpoint is hit, then we need to poll to wait for the user to truly login
         StartCoroutine(HasteIntegration.Instance.Client.WaitForLogin(cliResult, this.CompletedLogin));
     }
     private void CompletedLogin(HasteLoginResult loginResult)

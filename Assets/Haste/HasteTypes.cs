@@ -39,7 +39,7 @@ public class HasteServerScoreResult : HasteError
 
     public int leaderRank;
 }
-public class HasteAllLeaderboards
+public class HasteAllLeaderboards : HasteError
 {
     public HasteLeaderboardDetail[] leaderboards;
 }

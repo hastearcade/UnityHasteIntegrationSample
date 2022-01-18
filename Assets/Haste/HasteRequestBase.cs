@@ -9,7 +9,7 @@ using UnityEngine.Networking;
 public class HasteRequestBase
 {
     protected IEnumerator GetRequest<T>(string uri, System.Action<T> callback, string token = "")
-    where T : class
+    where T : HasteError
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
@@ -25,7 +25,7 @@ public class HasteRequestBase
     }
 
     protected IEnumerator PostRequest<T>(string uri, Dictionary<string, string> data, System.Action<T> callback, string token = "")
-    where T : class
+    where T : HasteError
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, data))
         {
@@ -40,6 +40,7 @@ public class HasteRequestBase
     }
 
     private void ProcessRequest<T>(string uri, UnityWebRequest webRequest, System.Action<T> callback)
+    where T : HasteError
     {
         string[] pages = uri.Split('/');
         int page = pages.Length - 1;
@@ -48,17 +49,15 @@ public class HasteRequestBase
         {
             case UnityWebRequest.Result.ConnectionError:
             case UnityWebRequest.Result.DataProcessingError:
-                Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                var err = default(T);
+                err.message = webRequest.error;
+                callback(err);
                 break;
             case UnityWebRequest.Result.ProtocolError:
-                Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
-
                 var errorResult = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
                 callback(errorResult);
                 break;
             case UnityWebRequest.Result.Success:
-                Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-
                 var result = JsonConvert.DeserializeObject<T>(webRequest.downloadHandler.text);
                 callback(result);
                 break;

@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class Leaderboards : NetworkBehaviour
 {
@@ -15,6 +12,7 @@ public class Leaderboards : NetworkBehaviour
         this.name = "Leaderboards";
         if (isServer)
         {
+            // populate the sync list with results from the Haste Server integration
             foreach (var leaderboard in HasteIntegration.Instance.Server.Leaderboards)
             {
                 hasteLeaderboards.Add(leaderboard);
@@ -45,6 +43,7 @@ public class Leaderboards : NetworkBehaviour
     [Command]
     void CmdSelectPayment(string JWT, string leaderboardId)
     {
+        // kick off the payment flow via haste Play endpoint
         PlayerPrefs.SetString("HasteLeaderboardId", leaderboardId);
         StartCoroutine(HasteIntegration.Instance.Server.Play(JWT, leaderboardId, PlayResult));
     }
@@ -57,16 +56,18 @@ public class Leaderboards : NetworkBehaviour
         var label = prefab.GetComponentsInChildren<TMPro.TextMeshProUGUI>().FirstOrDefault();
         label.name = "ErrorLabel";
         label.text = errorMessage;
-        Debug.Log(errorMessage);
     }
 
     [TargetRpc]
     void RpcStartGame()
     {
+        // hide all canvas elements to show the underlying game
         var uiComponent = GameObject.Find("UI");
+
         var uiCamera = GameObject.Find("MenuCamera");
         uiComponent.SetActive(false);
         uiCamera.SetActive(false);
+
     }
 
     void PlayResult(HasteServerPlayResult playResult)

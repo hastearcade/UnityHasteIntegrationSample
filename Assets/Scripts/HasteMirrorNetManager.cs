@@ -41,10 +41,12 @@ public class HasteMirrorNetManager : NetworkManager
 
         PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
         playerScore.playerNumber = clientIndex;
-        playerScore.scoreIndex = clientIndex / subScenes.Count;
-        playerScore.matchIndex = clientIndex % subScenes.Count;
+        playerScore.timeRemaining = 15;
+        playerScore.hasStarted = true;
 
         SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(clientIndex.ToString())]);
+
+        conn.identity.gameObject.transform.position = new Vector3(-5, 10, 4); // reset the position on start of game
     }
 
     public override void OnStartServer()
@@ -65,7 +67,6 @@ public class HasteMirrorNetManager : NetworkManager
         Vector3 spawnPosition = new Vector3(0, 0, 0);
         GameObject leaderboard = Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
         leaderboard.name = "Leaderboards";
-        //leaderboards.Add(conn.connectionId.ToString(), leaderboard);
         NetworkServer.Spawn(leaderboard, conn);
     }
     private void GetHasteTokenCompleted(HasteServerAuthResult result)
@@ -84,64 +85,4 @@ public class HasteMirrorNetManager : NetworkManager
         }
     }
 
-    /*
-        // We're additively loading scenes, so GetSceneAt(0) will return the main "container" scene,
-        // therefore we start the index at one and loop through instances value inclusively.
-        // If instances is zero, the loop is bypassed entirely.
-        IEnumerator ServerLoadSubScenes()
-        {
-            for (int index = 1; index <= instances; index++)
-            {
-                yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-
-                Scene newScene = SceneManager.GetSceneAt(index);
-                subScenes.Add(newScene);
-                Spawner.InitialSpawn(newScene);
-            }
-
-            subscenesLoaded = true;
-        }
-
-        /// <summary>
-        /// This is called when a server is stopped - including when a host is stopped.
-        /// </summary>
-        public override void OnStopServer()
-        {
-            NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
-            StartCoroutine(ServerUnloadSubScenes());
-            clientIndex = 0;
-        }
-
-        // Unload the subScenes and unused assets and clear the subScenes list.
-        IEnumerator ServerUnloadSubScenes()
-        {
-            for (int index = 0; index < subScenes.Count; index++)
-                yield return SceneManager.UnloadSceneAsync(subScenes[index]);
-
-            subScenes.Clear();
-            subscenesLoaded = false;
-
-            yield return Resources.UnloadUnusedAssets();
-        }
-
-        /// <summary>
-        /// This is called when a client is stopped.
-        /// </summary>
-        public override void OnStopClient()
-        {
-            // make sure we're not in host mode
-            if (mode == NetworkManagerMode.ClientOnly)
-                StartCoroutine(ClientUnloadSubScenes());
-        }
-
-        // Unload all but the active scene, which is the "container" scene
-        IEnumerator ClientUnloadSubScenes()
-        {
-            for (int index = 0; index < SceneManager.sceneCount; index++)
-            {
-                if (SceneManager.GetSceneAt(index) != SceneManager.GetActiveScene())
-                    yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(index));
-            }
-        }
-        */
 }

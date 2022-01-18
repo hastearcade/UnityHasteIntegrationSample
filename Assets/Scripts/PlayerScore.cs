@@ -1,39 +1,33 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
     public class PlayerScore : NetworkBehaviour
     {
         [SyncVar]
-        public float timeRemaining = 10;
+        public float timeRemaining = 1000; // this gets reset to 15 after game starts
 
         [SyncVar]
         public int playerNumber;
 
         [SyncVar]
-        public int scoreIndex;
-
-        [SyncVar]
-        public int matchIndex;
-
-        [SyncVar]
         public uint score;
 
-        public int clientMatchIndex = -1;
-
+        [SyncVar]
         public bool hasEnded = false;
+
+        [SyncVar]
+        public bool hasStarted = false;
 
         void OnGUI()
         {
-            if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)
-                clientMatchIndex = NetworkClient.connection.identity.GetComponent<PlayerScore>().matchIndex;
-
-            if (isLocalPlayer || matchIndex == clientMatchIndex)
+            if (isLocalPlayer && hasStarted)
             {
-                GUI.Box(new Rect(10f + (scoreIndex * 110), 10f, 100f, 25f), $"P{playerNumber}: {score}");
-                GUI.Box(new Rect(10f + (scoreIndex * 110), 30f, 100f, 25f), $"Time: {((int)timeRemaining)}");
+                GUI.Box(new Rect(10f, 10f, 100f, 50f), $"P{playerNumber}: {score}");
+                GUI.Box(new Rect(10f, 80f, 100f, 50f), $"Time: {((int)timeRemaining)}");
             }
         }
 
@@ -55,7 +49,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             {
                 if (!hasEnded)
                 {
-                    Debug.Log("ending game");
                     hasEnded = true;
                     CmdEndGame();
                 }
@@ -70,15 +63,22 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             var label = prefab.GetComponentsInChildren<TMPro.TextMeshProUGUI>().FirstOrDefault();
             label.name = "ErrorLabel";
             label.text = errorMessage;
-            Debug.Log(errorMessage);
         }
 
         [TargetRpc]
         void RpcEndGame(string message)
         {
-            Debug.Log(message);
-        }
+            var ui = SceneManager.GetActiveScene().GetRootGameObjects().FirstOrDefault(g => g.name == "UI");
+            ui.SetActive(true);
+            var finalScreen = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(g => g.name == "FinalScoreScreen");
+            var leaderboardPanel = GameObject.Find("LeaderboardSelection");
+            finalScreen.SetActive(true);
+            leaderboardPanel.SetActive(false);
 
+            var textResults = finalScreen.gameObject.GetComponentsInChildren<TMPro.TextMeshProUGUI>().FirstOrDefault(g => g.name == "Results");
+            textResults.text = message;
+            hasStarted = false; // turn off the score hud
+        }
         void ScoreResult(HasteServerScoreResult scoreResult)
         {
             if (scoreResult != null)
