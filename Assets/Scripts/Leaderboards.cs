@@ -68,6 +68,9 @@ public class Leaderboards : NetworkBehaviour
         uiComponent.SetActive(false);
         uiCamera.SetActive(false);
 
+        var player = GameObject.Find("Player(Clone)");
+        Debug.Log(player.transform.position);
+        player.gameObject.transform.position = new Vector3(-5, 5, 4);
     }
 
     void PlayResult(HasteServerPlayResult playResult)

@@ -46,7 +46,6 @@ public class HasteMirrorNetManager : NetworkManager
 
         SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(clientIndex.ToString())]);
 
-        conn.identity.gameObject.transform.position = new Vector3(-5, 10, 4); // reset the position on start of game
     }
 
     public override void OnStartServer()

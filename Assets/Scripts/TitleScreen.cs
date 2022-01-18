@@ -13,6 +13,8 @@ public class TitleScreen : MonoBehaviour
 {
     public Role Role;
 
+    private bool clientStarted = false;
+
     void Start()
     {
         // Based on whether or not the application is the client or server
@@ -60,19 +62,23 @@ public class TitleScreen : MonoBehaviour
 
     private void StartClient()
     {
-        // Active the network client, which will create a player on the server.
-        // The player is required to perform any kind of commands or RPCS
-        // which are done in the Leaderboard selection
-        NetworkManager.singleton.StartClient();
+        if (!clientStarted)
+        {
+            clientStarted = true;
+            // Active the network client, which will create a player on the server.
+            // The player is required to perform any kind of commands or RPCS
+            // which are done in the Leaderboard selection
+            NetworkManager.singleton.StartClient();
 
-        // Activate the appropriate UI (leaderboard selection)
-        var titlePanel = GameObject.Find("TitleScreen");
-        var leaderboardPanel = GameObject.Find("LeaderboardSelection");
-        var finalScreen = GameObject.Find("FinalScoreScreen");
+            // Activate the appropriate UI (leaderboard selection)
+            var titlePanel = GameObject.Find("TitleScreen");
+            var leaderboardPanel = GameObject.Find("LeaderboardSelection");
+            var finalScreen = GameObject.Find("FinalScoreScreen");
 
-        titlePanel.SetActive(false);
-        finalScreen.SetActive(false);
-        leaderboardPanel.SetActive(true);
+            titlePanel.SetActive(false);
+            finalScreen.SetActive(false);
+            leaderboardPanel.SetActive(true);
+        }
     }
 
     private void CompletedLoginInit(HasteCliResult cliResult)
