@@ -83,7 +83,6 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             if (scoreResult != null)
             {
-                // RpcEndGame();
                 if (!string.IsNullOrEmpty(scoreResult.message))
                 {
                     RpcEndGame(scoreResult.message);
