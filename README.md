@@ -1,4 +1,4 @@
-# UnityHasteIntegrationSample
+# Haste Integration for Unity Example 
 
 ## Overview
 
@@ -6,16 +6,17 @@ This readme is intended for developers looking to utilize the Haste ecosystem wi
 
 The UnityHasteIntegrationSample repository contains a simple game based on [this](https://github.com/vis2k/Mirror/tree/master/Assets/Mirror/Examples/MultipleAdditiveScenes) example game in the [Mirror](https://mirror-networking.gitbook.io/docs/) repository. The code is a modified version of the game, but contains code and assets from the mirror example.
 
+You will need a valid, production account for the Haste Arcade and will need to create a game in the [Haste Developer Portal](https://developer.hastearcade.com/)
+
 In order to run the example perform the following steps:
 
-1. git clone git@github.com:hastearcade/UnityHasteIntegrationSample.git
+1. `git clone git@github.com:hastearcade/UnityHasteIntegrationSample.git`
 2. Import project into Unity
 3. Create clone via ParrelSync menu.
 4. Open clone in a separate editor. One will be the game client and the other will be the game server.
 5. Ensure that in both instances of Unity the TitleScreen scene is loaded into the main hierarchy.
 5. For the game server instance of Unity, click the 'Play' button to start the game. You should see a 'Server Started' message.
 6. For the game client instance of Unity there is one additional step. Click on the UI component under the main TitleScreen scene. In the inspector, change the Role from "Server" to "Client". Then click the Play button to start the game.
-7. You will need a valid, production account for the Haste Arcade.
 
 ## Table of Contents
 
