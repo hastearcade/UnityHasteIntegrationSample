@@ -5,12 +5,6 @@ using UnityEngine;
 
 public class HasteServerIntegration : HasteRequestBase
 {
-    private string _hasteGameServerClientId = "cKLXxdH7l0DCoZmQMOrbc1h40ao7fE5A";
-    private string _hasteGameServerSecret = "5PjsTcYvgAEmB5ju7-PBDgzQWe7vQzrF84vSoat9gr8QBEwaAzf-lnXBywIYizKC";
-    private string _environment = "nonproduction"; // valid values are nonproduction or production
-    // The environment should be really be an environment variable. For demo purposes it will always be nonproduction
-    // but in a real implementation this should be an ENV VAR.
-
     private string _apiUrl = "https://api.hastearcade.com";
     private DateTime _tokenExpiration = DateTime.MinValue;
     private HasteServerAuthResult _configuration;
@@ -30,14 +24,14 @@ public class HasteServerIntegration : HasteRequestBase
         yield return GetHasteLeaderboards(leaderboardCallback);
     }
 
-    public IEnumerator GetServerToken(System.Action<HasteServerAuthResult> callback)
+    public IEnumerator GetServerToken(string hasteServerClientId, string hasteServerSecret, string hasteServerEnvironment, System.Action<HasteServerAuthResult> callback)
     {
         // first you need to get a token 
         var path = "/oauth/writetoken";
         var data = new Dictionary<string, string>();
-        data.Add("clientId", _hasteGameServerClientId);
-        data.Add("clientSecret", _hasteGameServerSecret);
-        data.Add("environment", _environment);
+        data.Add("clientId", hasteServerClientId);
+        data.Add("clientSecret", hasteServerSecret);
+        data.Add("environment", hasteServerEnvironment);
 
         yield return this.PostRequest<HasteServerAuthResult>($"{_apiUrl}{path}", data, callback);
     }

@@ -50,7 +50,11 @@ public class HasteMirrorNetManager : NetworkManager
 
     public override void OnStartServer()
     {
-        StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(GetHasteTokenCompleted));
+        DotEnv.Load("./.env");
+        var secret = System.Environment.GetEnvironmentVariable("HASTE_SERVER_SECRET");
+        var clientId = System.Environment.GetEnvironmentVariable("HASTE_SERVER_CLIENT_ID");
+        var environment = System.Environment.GetEnvironmentVariable("HASTE_SERVER_ENVIRONMENT");
+        StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(clientId, secret, environment, GetHasteTokenCompleted));
     }
 
     public override void OnServerConnect(NetworkConnection conn)
