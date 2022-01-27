@@ -93,7 +93,7 @@ public class TitleScreen : MonoBehaviour
 
         if (String.IsNullOrEmpty(loginResult.access_token))
         {
-            Debug.Log("An error occurred during login");
+            Debug.LogError("An error occurred during login");
             // TODO Need to display an error message to the user here
         }
         else

@@ -44,7 +44,6 @@ public class HasteRequestBase
     {
         string[] pages = uri.Split('/');
         int page = pages.Length - 1;
-
         switch (webRequest.result)
         {
             case UnityWebRequest.Result.ConnectionError:

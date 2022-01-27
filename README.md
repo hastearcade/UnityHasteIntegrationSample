@@ -12,6 +12,7 @@ In order to run the example perform the following steps:
 
 1. `git clone git@github.com:hastearcade/UnityHasteIntegrationSample.git`
 2. Import project into Unity
+3. Either create a `.env` file in the root directory (recommended) or set the environment variables manually in your operating system with the three environment variables found [here](.env.sample). The `HASTE_SERVER_ENVIRONMENT` variable should be set to `nonproduction` for testing and `production` when your game is ready to begin processing payments (i.e. final testing / production launch of the game).
 3. Create clone via ParrelSync menu.
 4. Open clone in a separate editor. One will be the game client and the other will be the game server.
 5. Ensure that in both instances of Unity the TitleScreen scene is loaded into the main hierarchy.

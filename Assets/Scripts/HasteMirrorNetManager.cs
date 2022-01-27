@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
@@ -51,9 +52,23 @@ public class HasteMirrorNetManager : NetworkManager
     public override void OnStartServer()
     {
         DotEnv.Load("./.env");
+
         var secret = System.Environment.GetEnvironmentVariable("HASTE_SERVER_SECRET");
         var clientId = System.Environment.GetEnvironmentVariable("HASTE_SERVER_CLIENT_ID");
         var environment = System.Environment.GetEnvironmentVariable("HASTE_SERVER_ENVIRONMENT");
+
+        if (string.IsNullOrEmpty(secret))
+        {
+            secret = System.Environment.GetEnvironmentVariable("HASTE_SERVER_SECRET", EnvironmentVariableTarget.User);
+            clientId = System.Environment.GetEnvironmentVariable("HASTE_SERVER_CLIENT_ID", EnvironmentVariableTarget.User);
+            environment = System.Environment.GetEnvironmentVariable("HASTE_SERVER_ENVIRONMENT", EnvironmentVariableTarget.User);
+        }
+
+        if (string.IsNullOrEmpty(secret) || string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(environment))
+        {
+            Debug.LogError("Please ensure that you have created a .env file in your root directory or you have set user level environment variables.");
+        }
+
         StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(clientId, secret, environment, GetHasteTokenCompleted));
     }
 
@@ -68,7 +83,7 @@ public class HasteMirrorNetManager : NetworkManager
         if (!NetworkServer.active) return;
 
         Vector3 spawnPosition = new Vector3(0, 0, 0);
-        GameObject leaderboard = Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
+        GameObject leaderboard = UnityEngine.Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
         leaderboard.name = "Leaderboards";
         NetworkServer.Spawn(leaderboard, conn);
     }

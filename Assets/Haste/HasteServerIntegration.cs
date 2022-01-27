@@ -12,6 +12,10 @@ public class HasteServerIntegration : HasteRequestBase
 
     public IEnumerator GetHasteLeaderboards(System.Action<HasteAllLeaderboards> callback)
     {
+        if (string.IsNullOrEmpty(_configuration.gameId))
+        {
+            Debug.LogError("An error occurred during server authentication. Please double check your client id and secret or contact support.");
+        }
         var path = $"/arcades/{_configuration.arcadeId}/developergames/{_configuration.gameId}";
         yield return this.GetRequest<HasteAllLeaderboards>($"{_apiUrl}{path}", callback, _configuration.access_token);
     }

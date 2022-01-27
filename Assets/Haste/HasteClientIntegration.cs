@@ -7,6 +7,7 @@ public class HasteClientIntegration : HasteRequestBase
 {
     private string authServerUrl = "https://authservice.hastearcade.com"; // These should be production
     private string authClientUrl = "https://authclient.hastearcade.com";
+    private bool completedLoginFlow = false;
     private System.Action<HasteLoginResult> _finalCallback;
     private System.Action<HasteCliResult> _cliCallback;
     private HasteServerAuthResult configuration;
@@ -34,13 +35,13 @@ public class HasteClientIntegration : HasteRequestBase
     public IEnumerator WaitForLogin(HasteCliResult cliResult, System.Action<HasteLoginResult> finalCallback)
     {
         this._finalCallback = finalCallback;
-        var completed = false;
         var browserUrl = $"{authClientUrl}{cliResult.browserUrl}";
         var cliUrl = $"{authServerUrl}{cliResult.cliUrl}/{cliResult.requestorId}";
+
         Application.OpenURL(browserUrl);
 
         // loop until the user logs in
-        while (!completed)
+        while (!completedLoginFlow)
         {
             yield return new WaitForSeconds(3f);
             yield return this.GetRequest<HasteLoginResult>($"{cliUrl}", this.ParseLoginCheck, cliResult.token);
@@ -48,8 +49,9 @@ public class HasteClientIntegration : HasteRequestBase
     }
     private void ParseLoginCheck(HasteLoginResult loginResult)
     {
-        if (loginResult != null)
+        if (loginResult != null && !String.IsNullOrEmpty(loginResult.access_token))
         {
+            completedLoginFlow = true;
             var jwtService = new JWTService();
 
             var expiration = jwtService.GetExpiryTimestamp(loginResult.access_token);
