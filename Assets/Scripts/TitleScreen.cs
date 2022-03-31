@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Globalization;
 using Mirror;
+using Mirror.SimpleWeb;
 
 public enum Role
 {
@@ -12,6 +13,8 @@ public enum Role
 public class TitleScreen : MonoBehaviour
 {
     public Role Role;
+    public GameObject clientUI;
+    public GameObject serverUI;
 
     private bool clientStarted = false;
 
@@ -19,9 +22,9 @@ public class TitleScreen : MonoBehaviour
     {
         // Based on whether or not the application is the client or server
         // show the correct UI elements. Server has no user interaction capabilities
-        var clientUI = GameObject.Find("ClientUI");
-        var serverUI = GameObject.Find("ServerUI");
-        if (Role == Role.Server)
+        clientUI = GameObject.Find("ClientUI");
+        serverUI = GameObject.Find("ServerUI");
+        if (Role == Role.Server || Application.platform == RuntimePlatform.LinuxPlayer)
         {
             clientUI.SetActive(false);
             serverUI.SetActive(true);
@@ -33,8 +36,25 @@ public class TitleScreen : MonoBehaviour
             clientUI.SetActive(true);
         }
     }
-
     public void Login()
+    {
+        clientUI.SetActive(false);
+#if UNITY_EDITOR
+        StartNonBrowserLoginFlow();
+#elif UNITY_WEBGL
+
+    // call out to the browser window and pull the token/expiration date from hasteClient
+    // then set the player prefs for quicker access
+    // or just do it every time?
+    var token = MobileDetection.GetTokenFromBrowser();
+    PlayerPrefs.SetString("HasteAccessToken", token);
+    StartClient();
+#else
+  StartNonBrowserLoginFlow();
+#endif
+
+    }
+    private void StartNonBrowserLoginFlow()
     {
         // The access token should be stored somewhere.
         // then in this function you should check that storage location to see if the user is already logged in
@@ -45,7 +65,6 @@ public class TitleScreen : MonoBehaviour
             (!PlayerPrefs.HasKey("HasteExpiration") ?
                 DateTime.MinValue :
                 DateTime.ParseExact(PlayerPrefs.GetString("HasteExpiration"), "yyyyMMddHHmmss", new CultureInfo("en-US")));
-
         if (expirationDate < DateTime.Now)
         {
             // Starts the login flow, which will open the browser. The login function expects a callback
@@ -57,7 +76,6 @@ public class TitleScreen : MonoBehaviour
             // The user is already logged in
             StartClient();
         }
-
     }
 
     private void StartClient()
@@ -65,12 +83,17 @@ public class TitleScreen : MonoBehaviour
         if (!clientStarted)
         {
             clientStarted = true;
+            clientUI.SetActive(true);
             // Active the network client, which will create a player on the server.
             // The player is required to perform any kind of commands or RPCS
             // which are done in the Leaderboard selection
+            var serverUrl = MobileDetection.GetServerUrl();
+            NetworkManager.singleton.networkAddress = serverUrl;
+            var networkClient = NetworkManager.singleton.GetComponent<SimpleWebTransport>();
+            networkClient.clientUseWss = serverUrl != "localhost";
+            networkClient.port = (serverUrl != "localhost" ? (ushort)443 : (ushort)7778);
             NetworkManager.singleton.StartClient();
 
-            // Activate the appropriate UI (leaderboard selection)
             var titlePanel = GameObject.Find("TitleScreen");
             var leaderboardPanel = GameObject.Find("LeaderboardSelection");
             var finalScreen = GameObject.Find("FinalScoreScreen");
@@ -101,11 +124,5 @@ public class TitleScreen : MonoBehaviour
             StartClient();
         }
 
-    }
-
-    public void QuitGame()
-    {
-        Application.Quit();
-        Debug.Log("Quit");
     }
 }

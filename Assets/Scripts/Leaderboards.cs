@@ -83,7 +83,7 @@ public class Leaderboards : NetworkBehaviour
             else
             {
                 PlayerPrefs.SetString("HastePlayId", playResult.id);
-                StartCoroutine(((HasteMirrorNetManager)NetworkManager.singleton).StartGameInstanceForPlayer(GetComponent<NetworkIdentity>().connectionToClient));
+                ((HasteMirrorNetManager)NetworkManager.singleton).StartGameInstanceForPlayer(GetComponent<NetworkIdentity>().connectionToClient);
                 RpcStartGame();
             }
         }

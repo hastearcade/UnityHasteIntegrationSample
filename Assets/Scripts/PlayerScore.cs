@@ -11,7 +11,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public float timeRemaining = 1000; // this gets reset to 15 after game starts
 
         [SyncVar]
-        public int playerNumber;
+        public uint playerNumber;
 
         [SyncVar]
         public uint score;
@@ -31,8 +31,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             }
         }
 
-        [Command]
-        void CmdEndGame()
+        void EndGame()
         {
             var playId = PlayerPrefs.GetString("HastePlayId");
             var leaderboardId = PlayerPrefs.GetString("HasteLeaderboardId");
@@ -50,7 +49,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 if (!hasEnded)
                 {
                     hasEnded = true;
-                    CmdEndGame();
+                    if (isServer) EndGame();
                 }
             }
         }

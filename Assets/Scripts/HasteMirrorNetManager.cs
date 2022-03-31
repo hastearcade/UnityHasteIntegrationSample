@@ -24,29 +24,29 @@ public class HasteMirrorNetManager : NetworkManager
 
     readonly Dictionary<string, GameObject> leaderboards = new Dictionary<string, GameObject>();
 
-    int clientIndex;
-
-    public IEnumerator StartGameInstanceForPlayer(NetworkConnection conn)
+    public void StartGameInstanceForPlayer(NetworkConnection conn)
     {
-        yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-
-        clientIndex++;
-        Scene newScene = SceneManager.GetSceneAt(clientIndex);
-        subScenes.Add(clientIndex.ToString(), newScene);
-        Spawner.InitialSpawn(newScene);
-
-        conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
-
-        // Wait for end of frame before adding the player to ensure Scene Message goes first
-        yield return new WaitForEndOfFrame();
-
         PlayerScore playerScore = conn.identity.GetComponent<PlayerScore>();
-        playerScore.playerNumber = clientIndex;
+        playerScore.playerNumber = conn.identity.netId;
         playerScore.timeRemaining = 15;
         playerScore.hasStarted = true;
 
-        SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(clientIndex.ToString())]);
+        var newScene = subScenes[conn.identity.netId.ToString()];
+        Spawner.InitialSpawn(newScene);
 
+        SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(conn.identity.netId.ToString())]);
+    }
+
+    public void EndGameInstanceForPlayer(NetworkConnection conn)
+    {
+        /*
+        THIS IS WHERE YOU WOULD PERFORM ANY SERVER SIDE CLEANUP OF YOUR PLAYER, ETC
+
+        Example:
+        var player = conn.identity.gameObject.GetComponent<Player>();
+        player.obstacles.Clear();
+
+        */
     }
 
     public override void OnStartServer()
@@ -72,9 +72,16 @@ public class HasteMirrorNetManager : NetworkManager
         StartCoroutine(HasteIntegration.Instance.Server.GetServerToken(clientId, secret, environment, GetHasteTokenCompleted));
     }
 
-    public override void OnServerConnect(NetworkConnection conn)
+    public override void OnServerAddPlayer(NetworkConnection conn)
     {
-        base.OnServerConnect(conn);
+        base.OnServerAddPlayer(conn);
+
+        var newScene = SceneManager.LoadScene(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics2D });
+
+        subScenes.Add(conn.identity.netId.ToString(), newScene);
+        conn.Send(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.LoadAdditive });
+
+        SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[(conn.identity.netId.ToString())]);
         SpawnLeaderboard(conn);
     }
 
@@ -86,7 +93,9 @@ public class HasteMirrorNetManager : NetworkManager
         GameObject leaderboard = UnityEngine.Object.Instantiate(((HasteMirrorNetManager)NetworkManager.singleton).leaderboardPrefab, spawnPosition, Quaternion.identity);
         leaderboard.name = "Leaderboards";
         NetworkServer.Spawn(leaderboard, conn);
+        SceneManager.MoveGameObjectToScene(leaderboard, subScenes[(conn.identity.netId.ToString())]);
     }
+
     private void GetHasteTokenCompleted(HasteServerAuthResult result)
     {
         if (result != null)
@@ -100,6 +109,58 @@ public class HasteMirrorNetManager : NetworkManager
         if (leaderboards != null)
         {
             HasteIntegration.Instance.Server.Leaderboards = leaderboards.leaderboards;
+        }
+    }
+
+    /// <summary>
+    /// This is called when a server is stopped - including when a host is stopped.
+    /// </summary>
+    public override void OnStopServer()
+    {
+        NetworkServer.SendToAll(new SceneMessage { sceneName = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
+        StartCoroutine(ServerUnloadSubScenes());
+    }
+
+    // Unload the subScenes and unused assets and clear the subScenes list.
+    IEnumerator ServerUnloadSubScenes()
+    {
+        foreach (var scene in subScenes)
+            yield return SceneManager.UnloadSceneAsync(scene.Value);
+
+        subScenes.Clear();
+        yield return Resources.UnloadUnusedAssets();
+    }
+
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        try
+        {
+            StartCoroutine(ClientUnloadSubScenes(conn.identity.netId.ToString()));
+            base.OnServerDisconnect(conn);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("An error occurred while disconnecting a client. The error is " + ex.Message + ". The inner message is " + ex.InnerException.Message);
+        }
+    }
+
+    public Nullable<Scene> GetScene(string netId)
+    {
+        Scene sceneToRemove;
+        if (subScenes.TryGetValue(netId, out sceneToRemove))
+            return sceneToRemove;
+        else
+            return null;
+    }
+
+    // Unload all but the active scene, which is the "container" scene
+    IEnumerator ClientUnloadSubScenes(string netId)
+    {
+        Scene? sceneToRemove = GetScene(netId);
+        if (sceneToRemove != null)
+        {
+            subScenes.Remove(netId);
+            yield return SceneManager.UnloadSceneAsync(sceneToRemove.Value);
         }
     }
 

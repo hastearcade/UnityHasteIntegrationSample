@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Example unity game for Haste Arcade" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <link rel="shortcut icon" href="TemplateData/images/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/css/reset.css">
+    <link rel="stylesheet" href="TemplateData/css/style.css">
+
+    <title>Example Game - Haste Originals</title>
+
+    <script src="TemplateData/scripts/unmute.js"></script>
+    <script src="TemplateData/scripts/HasteLoader.js"></script>
+    <script src="https://unpkg.com/@hastearcade/web/dist/umd/index.js" ></script>
+  </head>
+  <body>
+  <div id="root" style="height: 100%">
+    <div class="loading-container">
+      <div class="loading">
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+        <div class="item"></div>
+      </div>
+      <div class="loading-text">
+        <p>Loading</p>
+      </div>
+    </div>
+    <div id="login-container">
+      <img src="https://app.hastearcade.com/static/media/haste-logo.eec2a01b.svg" class="logo" />
+      <input type="image" id="login-button" onclick="hasteLogin()" src="TemplateData/images/login.svg" />
+    </div>
+    <div id="unity-container-parent" style="height: 100%;">
+      <div id="unity-container" style="width: 100%; height: 100%;">
+      <canvas id="unity-canvas" style="width: 10px; height: 10px"></canvas>
+      </div>
+    </div>
+  </div>
+
+    <script>
+    iphoneSoundFix();
+    hasteInst();
+    </script>
+
+  </body>
+</html>
+
