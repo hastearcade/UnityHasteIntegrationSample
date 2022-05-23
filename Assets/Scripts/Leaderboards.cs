@@ -21,11 +21,10 @@ public class Leaderboards : NetworkBehaviour
         else
         {
             // now that we are on the client with the leaderboard details we can dynamically add buttons to the canvas
-            var leaderboardSelection = GameObject.Find("LeaderboardSelection");
-            var startY = 900;
+            var leaderboardSelection = GameObject.Find("LeaderboardPanel").GetComponent<VerticalLayoutGroup>();
             foreach (var leaderboard in hasteLeaderboards)
             {
-                var prefab = Instantiate(Resources.Load("Button"), new Vector3(900, startY, 0), Quaternion.identity, leaderboardSelection.transform) as GameObject;
+                var prefab = Instantiate(Resources.Load("Button"), leaderboardSelection.transform) as  GameObject;
                 var label = prefab.GetComponentsInChildren<TMPro.TextMeshProUGUI>().FirstOrDefault();
                 var button = prefab.GetComponentsInChildren<Button>().FirstOrDefault();
 
@@ -34,7 +33,6 @@ public class Leaderboards : NetworkBehaviour
                 button.name = leaderboard.id;
 
                 button.onClick.AddListener(delegate { CmdSelectPayment(PlayerPrefs.GetString("HasteAccessToken"), button.name); });
-                startY -= 150;
             }
 
         }
